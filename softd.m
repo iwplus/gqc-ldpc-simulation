@@ -1,35 +1,35 @@
 ################################################################################
-##### program utama untuk Log-Likelihood Ratios Sum-Product Algorithm ##########
+##### the main program to perform Log-Likelihood Ratios Sum-Product Algorithm ##########
 ################################################################################
 
-### (1) Inisialisasi matriks H ####
+### (1) H matrix initialization####
 
-partisi = randi([2 4],1,3); #permutasi dari kode dimana partisi paling ujung sama dengan ko-dimensi
+partisi = randi([2 4],1,3); #the permutation of the corresponding linear code, where the last entry equals to co-dimension of the code
 disp('Cycle structure = ');
 disp(partisi);
 disp('');
 disp('');
-n = sum(partisi); #panjang kode
-disp('Panjang kode = ');
+n = sum(partisi); #length of code
+disp('Length of code = ');
 disp(n);
 disp('');
 disp('');
-g = randi([0 1], 1, n); #baris pertama matriks H
-r = partisi(length(partisi)); #ko-dimensi kode LDPC
-disp('Ko-dimensi kode = ');
+g = randi([0 1], 1, n); #the first row of H
+r = partisi(length(partisi)); #LDPC code co-dimension
+disp('Co-dimension = ');
 disp(r);
 disp('');
 disp('');
-H=generateh(partisi,g,r); #matriks H
+H=generateh(partisi,g,r); #The H matrix
 disp('H = ');
 disp(H);
 disp('');
 disp('');
 
 ###### (2) Enkoding ####
-#### catatan : pastikan blok paling kanan matriks H sudah tak-singular ####
+#### Note: make sure that the right block of H is non-singular ####
 
-### Hitung matriks G ####
+### Calculate the generator matrix G ####
 
 indawal = sum(partisi)-partisi(length(partisi))+1;
 indakhir = indawal+partisi(length(partisi))-1;
@@ -58,7 +58,7 @@ disp(G);
 disp('');
 disp('');
 
-#### generate pesan asli secara random ####
+#### generate the original message randomly ####
 m = zeros(1,n-r);
 nsatu = randperm(n-r,1);
 indsatu = randperm(n-r,nsatu);
@@ -66,18 +66,18 @@ indsatu = randperm(n-r,nsatu);
 for iterisim = 1:length(indsatu),
   m(indsatu(iterisim)) = 1;
 endfor
-##disp('Pesan asli = ');
+##disp('original message = ');
 ##disp(m);
 ##disp('');
 ##disp('');
 
-x = mod(m*G,2); #### hasil enkoding
-##disp('pesan yang dikirim = ');
+x = mod(m*G,2); #### encoding result
+##disp('coded message = ');
 ##disp(x);
 ##disp('');
 ##disp('');
 
-#t = 1; #### bobot vektor error
+#t = 1; #### the weight of error vector
 ber = [];
 numerror = [];
 bataserror = ceil(2*n/3);
@@ -85,16 +85,16 @@ for t = 1:bataserror,
 inderror = randperm(n,t);
 xerror = x;
 
-for i = 1:t, #### penambahan error ke pesan yang dikirim
+for i = 1:t, #### add the error vector to the coded message
   xerror(inderror(i)) = mod(xerror(inderror(i))+1,2);
 endfor
 
-##disp('pesan yang diterima = ');
+##disp('received message = ');
 ##disp(xerror);
 ##disp('');
 ##disp('');
 
-### (3) Inisialisasi LLR-SPA ###
+### (3) LLR-SPA initialization ###
 
 y = xerror;
 Gamma = zeros(n,r);
@@ -108,19 +108,19 @@ for i = 1:n,
   endfor
 endfor
 
-##disp('Gamma awal = ');
+##disp('Initial Gamma = ');
 ##disp(Gamma);
 ##disp('');
 ##disp('');
 
 iterasimaks = 2;
 iter = 0;
-while iter <= iterasimaks, #### iterasi LLR-SPA
+while iter <= iterasimaks, #### LLR-SPA iteration
   
 #### (4) Left semi-iteration #####
 
 for k = 1:r,
-  Ak = find(H(k,:)); #### A(k) = daftar semua tetangga dari check node c_k
+  Ak = find(H(k,:)); #### A(k) = a list of all neighbors of check node c_k
   
   for i = 1:length(Ak),
     Aki = Ak;
@@ -133,7 +133,7 @@ for k = 1:r,
   endfor
 endfor
 
-##disp('Lambda terupdate = ');
+##disp('updated Lambda = ');
 ##disp(Lambda);
 ##disp('');
 ##disp('');
@@ -141,7 +141,7 @@ endfor
 #### (5) Right semi-iteration #####
 Gammadec = zeros(1,n);
 for i = 1:n,
-  Bi = transpose(find(H(:,i))); ###B(i) = daftar semua tetangga dari var node v_i
+  Bi = transpose(find(H(:,i))); ###B(i) = a list of all neighbors of var node v_i
   
   for k = 1:length(Bi),
     Bik = Bi;
@@ -159,12 +159,12 @@ for i = 1:n,
   Gammadec(i) = llr(y(i),t,n) + Gamtemp2;  
 endfor
 
-##disp('Gamma terupdate = ');
+##disp('updated Gamma = ');
 ##disp(Gamma);
 ##disp('');
 ##disp('');
 
-#disp('Gamma_i untuk keputusan = ');
+#disp('Gamma_i for decision = ');
 #disp(Gammadec);
 #disp('');
 #disp('');
@@ -181,7 +181,7 @@ for i = 1:n,
   endif
 endfor
 
-#disp('x hasil koreksi = ');
+#disp('x corrected = ');
 #disp(xcorrect);
 #disp('');
 #disp('');
@@ -194,12 +194,8 @@ endif
 
 endwhile
 
-##disp('x hasil koreksi = ');
-##disp(xcorrect);
-##disp('');
-##disp('');
 
-######### hitung Bit Error Rate (BER) ####
+######### calculate Bit Error Rate (BER) ####
 
 selisihv = mod(x-xcorrect,2);
 selisihind = find(selisihv);
@@ -208,7 +204,7 @@ numerror = [numerror t];
 
 endfor
 
-###### plot BER terhadap banyaknya error yang ditambahkan ######
+###### plot BER against the number of added error ######
 
 plot(numerror,ber,'-s', 'MarkerSize',10,'MarkerFaceColor',[1 .6 .6])
 set(gca,'Ylim',[0 1])
