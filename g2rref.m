@@ -4,13 +4,13 @@
 
 
 % This is a modified version of matlab's building rref which calculates
-% row-reduced echelon form in gf(2).  Useful for linear codes.
+% row-reduced echelon form in GF(2) and the inverse of a matrix over GF(2) simultaneously.  Useful for linear codes.
 % Tolerance was removed because yolo, and because all values
 % should only be 0 or 1.  @benathon
 
 function C = g2rref(A)
-%G2RREF   Reduced row echelon form in gf(2).
-%   R = RREF(A) produces the reduced row echelon form of A in gf(2).
+%G2RREF   Reduced row echelon form in GF(2).
+%   R = RREF(A) produces the reduced row echelon form of A in GF(2).
 %
 %   Class support for input A:
 %      float: with values 0 or 1
